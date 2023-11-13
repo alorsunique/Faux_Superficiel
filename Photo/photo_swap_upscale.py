@@ -1,20 +1,25 @@
 import os
+import shutil
 from datetime import datetime
 from pathlib import Path
-import shutil
+
 import cv2
 from basicsr.archs.rrdbnet_arch import RRDBNet
-from gfpgan import GFPGANer
 from realesrgan import RealESRGANer
 
-project_dir = Path.cwd()
-upper_dir = project_dir.parent.parent
-resources_dir = upper_dir / "PycharmProjects Resources" / "Faux_Superficiel Resources"
+from gfpgan import GFPGANer
 
-deep_dir = resources_dir / "Photo Deep"
-output_dir = deep_dir / "Output"
-output_transplant_dir = output_dir / "Transplant"
-upscale_dir = deep_dir / "Upscale"
+os.chdir(Path.cwd().parent)
+
+with open("Resources Directory.txt", "r") as resources_text:
+    resources_dir = Path(resources_text.readline())
+
+photo_folder_dir = resources_dir / "Photo"
+output_dir = photo_folder_dir / "Output"
+output_transplant_dir = output_dir / "Transplant Output"
+upscale_dir = photo_folder_dir / "Upscale"
+
+# Takes note of all the images in the output transplant folder
 
 output_list = []
 for entry in output_transplant_dir.rglob('*'):
@@ -24,6 +29,8 @@ for entry in output_transplant_dir.rglob('*'):
         else:
             output_list.append(f"{entry.parent.name}/{entry.name}")
 
+# Takes note of all the images in the upscale folder
+
 upscale_list = []
 for entry in upscale_dir.rglob('*'):
     if entry.is_file():
@@ -32,38 +39,45 @@ for entry in upscale_dir.rglob('*'):
         else:
             upscale_list.append(f"{entry.parent.name}/{entry.name}")
 
+# Set comparison is done here
+
 output_set = set(output_list)
 upscale_set = set(upscale_list)
 extra_set = upscale_set.difference(output_set)
 to_upscale_set = output_set.difference(upscale_set)
+to_upscale_list = sorted(list(to_upscale_set))
+
+# Deletes all extra photos in the upscale folder
+# Extra photos are images with no corresponding image in the output transplant folder
 
 for entry in extra_set:
     file_dir = upscale_dir / entry
     os.remove(file_dir)
 
-dir_list = []
+folder_list = []
 
 for entry in upscale_dir.rglob('*'):
     if entry.is_dir():
-        dir_list.append(entry)
+        folder_list.append(entry)
 
+# Delete all empty folders in the upscale directory
 
-
-for entry in dir_list:
+for entry in folder_list:
     if not any(entry.iterdir()):
         print(f"{entry} is empty")
         shutil.rmtree(entry)
 
-general_resources_dir = Path("D:\Projects\General Resources")
-RealESRGAN_model_dir = str(general_resources_dir / "RealESRGAN_x2plus.pth")
-GFPGAN_model_dir = str(general_resources_dir / "GFPGANv1.4.pth")
+# Imports the models used for face reconstruction
 
-to_upscale_list = sorted(list(to_upscale_set))
+with open("RealESRGANx2 Directory.txt", "r") as realESRGAN_text:
+    RealESRGAN_model_dir = str(Path(realESRGAN_text.readline()))
+
+with open("GFPGAN Directory.txt", "r") as GFPGAN_text:
+    GFPGAN_model_dir = str(Path(GFPGAN_text.readline()))
 
 model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=2)
 bg_upsampler = RealESRGANer(
     scale=2,
-    #model_path='https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.1/RealESRGAN_x2plus.pth',
     model_path=RealESRGAN_model_dir,
     model=model,
     tile=400,
@@ -71,8 +85,6 @@ bg_upsampler = RealESRGANer(
     pre_pad=0,
     half=True)  # need to set False in CPU mode
 
-model_path = os.path.join('gfpgan/weights', "GFPGANv1.4" + '.pth')
-#model_path = os.path.join('gfpgan/weights', "GFPGANv1.3" + '.pth')
 arch = 'clean'
 channel_multiplier = 2
 
@@ -83,6 +95,7 @@ restorer = GFPGANer(
     channel_multiplier=channel_multiplier,
     bg_upsampler=bg_upsampler)
 
+# Face restoration is done here
 
 global_now = datetime.now()
 global_start_time = global_now
@@ -91,7 +104,7 @@ print(f"Session Start Time: {global_current_time}\n")
 
 for entry in to_upscale_list:
     file_dir = output_transplant_dir / entry
-    print(file_dir.name)
+    print(f"Working: {file_dir.name}")
 
     input_img = cv2.imread(str(file_dir), cv2.IMREAD_COLOR)
     cropped_faces, restored_faces, restored_img = restorer.enhance(

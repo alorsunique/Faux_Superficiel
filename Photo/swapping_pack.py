@@ -1,3 +1,5 @@
+# Python file containing the functions for swapping photos
+
 import json
 import os
 import sys
@@ -182,8 +184,9 @@ def invert_swap(working_list, buffalo, base_output_dir, transplant_output_dir, i
     json.dump(checked_pack, json_file)
     json_file.close()
 
+
 def normal_swap_all_face(working_list, buffalo, base_output_dir, transplant_output_dir, inswapper, combination_length,
-                checked_pack, check_JSON_dir):
+                         checked_pack, check_JSON_dir):
     combination_list = working_list
     combination_count = 0
 
@@ -273,7 +276,7 @@ def normal_swap_all_face(working_list, buffalo, base_output_dir, transplant_outp
 
 
 def invert_swap_all_face(working_list, buffalo, base_output_dir, transplant_output_dir, inswapper, combination_length,
-                checked_pack, check_JSON_dir):
+                         checked_pack, check_JSON_dir):
     combination_list = working_list
     combination_count = 0
 
