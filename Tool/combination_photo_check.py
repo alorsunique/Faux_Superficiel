@@ -1,20 +1,25 @@
+import json
+import os
+import shutil
 from pathlib import Path
 
-import os
-import itertools
-import json
-import shutil
+os.chdir(Path.cwd().parent)
 
-project_dir = Path.cwd()
-upper_dir = project_dir.parent.parent
-resources_dir = upper_dir / "PycharmProjects Resources" / "Faux_Superficiel Resources"
+with open("Resources Directory.txt", "r") as resources_text:
+    resources_dir = Path(resources_text.readline())
 
-deep_dir = resources_dir / "Photo Deep"
-base_dir = deep_dir / "Base"
-transplant_dir = deep_dir / "Transplant"
-output_dir = deep_dir / "Output"
-output_base_dir = output_dir / "Base"
-output_transplant_dir = output_dir / "Transplant"
+# Setting up the directories
+
+photo_folder_dir = resources_dir / "Photo"
+
+base_dir = photo_folder_dir / "Base"
+transplant_dir = photo_folder_dir / "Transplant"
+
+output_dir = photo_folder_dir / "Output"
+output_base_dir = output_dir / "Base Output"
+output_transplant_dir = output_dir / "Transplant Output"
+
+# Taking note of all the base images
 
 base_file_list = []
 
@@ -22,20 +27,29 @@ for entry in base_dir.rglob('*'):
     if entry.is_file():
         base_file_list.append(entry)
 
+# Taking note of all the transplant images
+
 transplant_file_list = []
 
 for entry in transplant_dir.rglob('*'):
     if entry.is_file():
         transplant_file_list.append(entry)
 
+# Taking note of all output images
+
 combined_processed_list_dict = dict()
 for entry in output_dir.rglob('*'):
     if entry.is_file():
         combined_processed_list_dict[entry] = 0
 
+# In this part, the output images are checked if they can be produced from the base and transplant images
+# If not, they will be deleted
+
 checked_pack = []
 
 for base_file in base_file_list:
+
+    print(f"Working: {base_file.name}")
 
     base_entry = base_file
     if base_entry.parent.name != "Base":
@@ -66,6 +80,8 @@ for base_file in base_file_list:
         base_condition = False
         transplant_condition = False
 
+        # The checking is done here
+
         if base_search_dir.exists():
             for output_file in base_search_dir.iterdir():
 
@@ -86,8 +102,10 @@ for base_file in base_file_list:
         if base_condition and transplant_condition:
             checked_pack.append(str((base_file, transplant_file)).upper())
 
-check_JSON_dir = deep_dir / "Check Compare.json"
-with open(check_JSON_dir, "w") as json_file:
+# A JSON file containing all the combinations will be written
+
+check_compare_JSON_dir = photo_folder_dir / "Check Compare.json"
+with open(check_compare_JSON_dir, "w") as json_file:
     json.dump(checked_pack, json_file)
 
 for entry in combined_processed_list_dict:
@@ -96,28 +114,30 @@ for entry in combined_processed_list_dict:
             print(f"Removing {entry}")
             os.remove(str(entry))
 
-dir_list = []
+# Clearing of empty directories
+
+folder_list = []
 
 for entry in output_dir.rglob('*'):
     if entry.is_dir():
-        dir_list.append(entry)
+        folder_list.append(entry)
 
 for entry in base_dir.rglob('*'):
     if entry.is_dir():
-        dir_list.append(entry)
+        folder_list.append(entry)
 
 for entry in transplant_dir.rglob('*'):
     if entry.is_dir():
-        dir_list.append(entry)
+        folder_list.append(entry)
 
-for entry in dir_list:
+for entry in folder_list:
     if not any(entry.iterdir()):
         print(f"{entry} is empty")
         shutil.rmtree(entry)
 
-out_check_JSON_dir = deep_dir / "Check.json"
+check_JSON_dir = photo_folder_dir / "Check.json"
 
-if out_check_JSON_dir.exists():
-    os.remove(out_check_JSON_dir)
+if check_JSON_dir.exists():
+    os.remove(check_JSON_dir)
 
-shutil.copy2(check_JSON_dir, out_check_JSON_dir)
+shutil.copy2(check_compare_JSON_dir, check_JSON_dir)
