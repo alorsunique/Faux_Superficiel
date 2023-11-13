@@ -8,6 +8,8 @@ from insightface.app import FaceAnalysis
 
 from Photo import swapping_pack as sp
 
+os.chdir(Path.cwd().parent)
+
 # Buffalo and Inswapper are imported here
 
 # buffalo =FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"]) # For CPU use only
@@ -25,7 +27,6 @@ inswapper = insightface.model_zoo.get_model(str(
 
 # Setting up the directories
 
-os.chdir(Path.cwd().parent)
 
 with open("Resources Directory.txt", "r") as resources_text:
     resources_dir = Path(resources_text.readline())
