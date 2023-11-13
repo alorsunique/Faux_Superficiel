@@ -15,7 +15,7 @@ swap_folder_dir = video_folder_dir / "Swap"
 
 face_dir = swap_folder_dir / "Face"
 video_in_dir = swap_folder_dir / "Swap Video Input"
-video_out_dir = swap_folder_dir / "Swap Video Output"
+video_out_dir = swap_folder_dir / "Swap Video Upscale"
 
 # Takes note of all face images
 
@@ -61,13 +61,13 @@ for face in face_list:
         if output_path.exists():
             checked_pack.append(str((face, video)).upper())
 
-check_compare_JSON_dir = video_folder_dir / "Check Compare.json"
-with open(check_compare_JSON_dir, "w") as json_file:
+check_upscale_JSON_dir = video_folder_dir / "Check Upscale Compare.json"
+with open(check_upscale_JSON_dir, "w") as json_file:
     json.dump(checked_pack, json_file)
 
-check_JSON_dir = video_folder_dir / "Check.json"
+check_JSON_dir = video_folder_dir / "Check Upscale.json"
 
 if check_JSON_dir.exists():
     os.remove(check_JSON_dir)
 
-shutil.copy2(check_compare_JSON_dir, check_JSON_dir)
+shutil.copy2(check_upscale_JSON_dir, check_JSON_dir)
