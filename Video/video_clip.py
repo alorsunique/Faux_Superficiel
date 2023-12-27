@@ -6,19 +6,20 @@ from pathlib import Path
 
 from moviepy.editor import VideoFileClip
 
-project_dir = Path.cwd().parent
-upper_dir = project_dir.parent.parent
-resources_dir = upper_dir / "PycharmProjects Resources" / "Faux_Superficiel Resources"
+os.chdir(Path.cwd().parent)
 
-video_dir = resources_dir / "Video"
-
-if not video_dir.exists():
-    os.mkdir(video_dir)
-
-workspace_dir = video_dir / "Temporary Workspace"
+with open("Resources Directory.txt", "r") as resources_text:
+    resources_dir = Path(resources_text.readline())
 
 if not resources_dir.exists():
     os.mkdir(resources_dir)
+
+video_folder_dir = resources_dir / "Video"
+
+if not video_folder_dir.exists():
+    os.mkdir(video_folder_dir)
+
+workspace_dir = video_folder_dir / "Temporary Workspace"
 
 if not workspace_dir.exists():
     os.mkdir(workspace_dir)
@@ -26,11 +27,11 @@ if not workspace_dir.exists():
 # Changes the working directory to the workspace
 os.chdir(workspace_dir)
 
-clip_input_dir = video_dir / "Clip Input"
+clip_input_dir = video_folder_dir / "Clip Input"
 if not clip_input_dir.exists():
     os.mkdir(clip_input_dir)
 
-clip_output_dir = video_dir / "Clip Output"
+clip_output_dir = video_folder_dir / "Clip Output"
 if not clip_output_dir.exists():
     os.mkdir(clip_output_dir)
 
@@ -41,7 +42,8 @@ for entry in clip_input_dir.rglob('*'):
         input_list.append(entry)
 
 break_condition = False
-N = 8
+N = 8  # Padding
+
 # Main loop of the program
 while True:
     in_count = 0
@@ -92,4 +94,3 @@ while True:
 for entry in workspace_dir.iterdir():
     print(f"Removing: {entry.name}")
     os.remove(entry)
-

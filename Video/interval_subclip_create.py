@@ -6,15 +6,17 @@ from pathlib import Path
 
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 
-project_dir = Path.cwd().parent
-upper_dir = project_dir.parent.parent
-resources_dir = upper_dir / "PycharmProjects Resources" / "Faux_Superficiel Resources"
-video_dir = resources_dir / "Video"
+os.chdir(Path.cwd().parent)
 
-if not video_dir.exists():
-    os.mkdir(video_dir)
+with open("Resources Directory.txt", "r") as resources_text:
+    resources_dir = Path(resources_text.readline())
 
-workspace_dir = video_dir / "Temporary Workspace"
+video_folder_dir = resources_dir / "Video"
+
+if not video_folder_dir.exists():
+    os.mkdir(video_folder_dir)
+
+workspace_dir = video_folder_dir / "Temporary Workspace"
 
 if not resources_dir.exists():
     os.mkdir(resources_dir)
@@ -25,11 +27,11 @@ if not workspace_dir.exists():
 # Change working directory
 os.chdir(workspace_dir)
 
-subclip_input_dir = video_dir / "Subclip Input"
+subclip_input_dir = video_folder_dir / "Subclip Input"
 if not subclip_input_dir.exists():
     os.mkdir(subclip_input_dir)
 
-subclip_output_dir = video_dir / "Subclip Output"
+subclip_output_dir = video_folder_dir / "Subclip Output"
 if not subclip_output_dir.exists():
     os.mkdir(subclip_output_dir)
 
@@ -83,7 +85,7 @@ for video_file in subclip_input_dir.iterdir():
 # It is possible that creating the subclips can get corrupted
 # Checking if any of the subclips is corrupted is done here
 
-print(f"Checking subclips")
+print(f"Checking Subclips")
 
 for video_folder in subclip_output_dir.iterdir():
 
@@ -93,8 +95,6 @@ for video_folder in subclip_output_dir.iterdir():
         subclip_list.append(subclip)
 
     sorted_subclip_list = sorted(subclip_list)
-
-    print(sorted_subclip_list)
 
     # Attempt at building the clips again to see if there is no corrupted subclip
 
@@ -108,7 +108,7 @@ for video_folder in subclip_output_dir.iterdir():
     final_video = concatenate_videoclips(video_clip_added)
     output_dir = workspace_dir / f"{video_folder.name}.mp4"
 
-    print("Got HERE")
+    print(f"Rebuilding {video_folder.name}")
 
     try:
         # A video file will be written regardless of the result of this try except block

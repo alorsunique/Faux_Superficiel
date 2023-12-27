@@ -8,7 +8,7 @@ import cv2
 
 
 def normal_swap(working_list, buffalo, base_output_dir, transplant_output_dir, inswapper, combination_length,
-                checked_pack, check_JSON_dir):
+                checked_pack, check_JSON_dir, save_base=False):
     combination_list = working_list
     combination_count = 0
 
@@ -86,9 +86,11 @@ def normal_swap(working_list, buffalo, base_output_dir, transplant_output_dir, i
                                 (base_image_path, transplant_image_path))
                             checked_pack.append(append_string.upper())
 
-                            base_output_path = base_output_folder_name / output_name
+                            if save_base:
+                                base_output_path = base_output_folder_name / output_name
+                                cv2.imwrite(str(base_output_path), base_copy)
+
                             transplant_output_path = transplant_output_folder_name / output_name
-                            cv2.imwrite(str(base_output_path), base_copy)
                             cv2.imwrite(str(transplant_output_path), base_copy)
 
     json_file = open(check_JSON_dir, "w")
@@ -97,7 +99,7 @@ def normal_swap(working_list, buffalo, base_output_dir, transplant_output_dir, i
 
 
 def invert_swap(working_list, buffalo, base_output_dir, transplant_output_dir, inswapper, combination_length,
-                checked_pack, check_JSON_dir):
+                checked_pack, check_JSON_dir, save_base=False):
     combination_list = working_list
     combination_count = 0
 
@@ -175,10 +177,12 @@ def invert_swap(working_list, buffalo, base_output_dir, transplant_output_dir, i
                                 (transplant_image_path, base_image_path))
                             checked_pack.append(append_string.upper())
 
+                            if save_base:
+                                transplant_output_path = transplant_output_folder_name / output_name
+                                cv2.imwrite(str(transplant_output_path), base_copy)
+
                             base_output_path = base_output_folder_name / output_name
-                            transplant_output_path = transplant_output_folder_name / output_name
                             cv2.imwrite(str(base_output_path), base_copy)
-                            cv2.imwrite(str(transplant_output_path), base_copy)
 
     json_file = open(check_JSON_dir, "w")
     json.dump(checked_pack, json_file)
@@ -186,7 +190,7 @@ def invert_swap(working_list, buffalo, base_output_dir, transplant_output_dir, i
 
 
 def normal_swap_all_face(working_list, buffalo, base_output_dir, transplant_output_dir, inswapper, combination_length,
-                         checked_pack, check_JSON_dir):
+                         checked_pack, check_JSON_dir, save_base=False):
     combination_list = working_list
     combination_count = 0
 
@@ -265,9 +269,11 @@ def normal_swap_all_face(working_list, buffalo, base_output_dir, transplant_outp
                         (base_image_path, transplant_image_path))
                     checked_pack.append(append_string.upper())
 
-                    base_output_path = base_output_folder_name / output_name
+                    if save_base:
+                        base_output_path = base_output_folder_name / output_name
+                        cv2.imwrite(str(base_output_path), base_copy)
+
                     transplant_output_path = transplant_output_folder_name / output_name
-                    cv2.imwrite(str(base_output_path), base_copy)
                     cv2.imwrite(str(transplant_output_path), base_copy)
 
     json_file = open(check_JSON_dir, "w")
@@ -276,7 +282,7 @@ def normal_swap_all_face(working_list, buffalo, base_output_dir, transplant_outp
 
 
 def invert_swap_all_face(working_list, buffalo, base_output_dir, transplant_output_dir, inswapper, combination_length,
-                         checked_pack, check_JSON_dir):
+                         checked_pack, check_JSON_dir, save_base=False):
     combination_list = working_list
     combination_count = 0
 
@@ -354,10 +360,12 @@ def invert_swap_all_face(working_list, buffalo, base_output_dir, transplant_outp
                         (transplant_image_path, base_image_path))
                     checked_pack.append(append_string.upper())
 
+                    if save_base:
+                        transplant_output_path = transplant_output_folder_name / output_name
+                        cv2.imwrite(str(transplant_output_path), base_copy)
+
                     base_output_path = base_output_folder_name / output_name
-                    transplant_output_path = transplant_output_folder_name / output_name
                     cv2.imwrite(str(base_output_path), base_copy)
-                    cv2.imwrite(str(transplant_output_path), base_copy)
 
     json_file = open(check_JSON_dir, "w")
     json.dump(checked_pack, json_file)

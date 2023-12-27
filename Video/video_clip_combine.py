@@ -1,20 +1,18 @@
-import gc
+import math
 import os
 from pathlib import Path
 
-from moviepy.editor import VideoFileClip
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 
-project_dir = Path.cwd().parent
-upper_dir = project_dir.parent.parent
-resources_dir = upper_dir / "PycharmProjects Resources" / "Faux_Superficiel Resources"
+os.chdir(Path.cwd().parent)
+
+with open("Resources Directory.txt", "r") as resources_text:
+    resources_dir = Path(resources_text.readline())
 
 video_dir = resources_dir / "Video"
-
-if not video_dir.exists():
-    os.mkdir(video_dir)
-
 workspace_dir = video_dir / "Temporary Workspace"
+
+os.chdir(workspace_dir)
 
 clip_output_dir = video_dir / "Clip Output"
 if not clip_output_dir.exists():
@@ -24,31 +22,28 @@ clip_combine_dir = video_dir / "Clip Combine"
 if not clip_combine_dir.exists():
     os.mkdir(clip_combine_dir)
 
+# This part searches for all unique titles
+
 unique_title_list = []
 
 for entry in clip_output_dir.iterdir():
-    print(entry.name)
-    name_split = entry.name.split("_")
-    print(name_split[:-1])
-    unique_title = "_".join(name_split[:-1])
-    print(unique_title)
+    entry_name_split = entry.name.split("_")
+    unique_title = "_".join(entry_name_split[:-1])
     if unique_title not in unique_title_list:
         unique_title_list.append(unique_title)
 
-print(unique_title_list)
+# This part processes clips of the same video
 
 for unique_title in unique_title_list:
 
     clip_list = []
 
     for entry in clip_output_dir.iterdir():
-        entry_split = entry.name.split("_")
-        title = "_".join(entry_split[:-1])
+        entry_name_split = entry.name.split("_")
+        title = "_".join(entry_name_split[:-1])
 
         if title == unique_title:
             clip_list.append(entry)
-
-    print(clip_list)
 
     sorted_clip_list = sorted(clip_list)
 
@@ -60,8 +55,14 @@ for unique_title in unique_title_list:
         clip.reader.close()
 
     final_video = concatenate_videoclips(video_clip_added)
+    print(f"Video duration: {final_video.duration}")
+    print(f"Floor seconds: {math.floor(final_video.duration)}")
 
+    if math.floor(final_video.duration) % 5 == 0:
+        print("Removing the last and a quarter second")
+        final_video = final_video.subclip(0, final_video.duration - 1.25)
 
+    print(f"Trimmed duration: {final_video.duration}")
 
     output_name = f"{unique_title}.mp4"
     output_path = clip_combine_dir / output_name
@@ -76,8 +77,3 @@ for unique_title in unique_title_list:
 for entry in workspace_dir.iterdir():
     print(f"Removing: {entry.name}")
     os.remove(entry)
-
-
-
-
-

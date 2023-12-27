@@ -1,47 +1,45 @@
 import gc
 import json
 import os
-import sys
 import time
 from datetime import datetime
 from pathlib import Path
 
 import cv2
 import insightface
+from basicsr.archs.rrdbnet_arch import RRDBNet
 from insightface.app import FaceAnalysis
 from moviepy.editor import ImageSequenceClip
 from moviepy.editor import VideoFileClip
-
-from basicsr.archs.rrdbnet_arch import RRDBNet
 from realesrgan import RealESRGANer
-import matplotlib.pyplot as plt
+
 from gfpgan import GFPGANer
 
 project_dir = Path.cwd().parent
 
-os.chdir(project_dir)
+os.chdir(Path.cwd().parent)
 
-upper_dir = project_dir.parent.parent
-resources_dir = upper_dir / "PycharmProjects Resources" / "Faux_Superficiel Resources"
-video_dir = resources_dir / "Video"
+with open("Resources Directory.txt", "r") as resources_text:
+    resources_dir = Path(resources_text.readline())
+video_folder_dir = resources_dir / "Video"
 
-if not video_dir.exists():
-    os.mkdir(video_dir)
+if not video_folder_dir.exists():
+    os.mkdir(video_folder_dir)
 
-workspace_dir = video_dir / "Temporary Workspace"
+workspace_dir = video_folder_dir / "Temporary Workspace"
 
 if not workspace_dir.exists():
     os.mkdir(workspace_dir)
 
+with open("RealESRGANx2 Directory.txt", "r") as realESRGAN_text:
+    RealESRGAN_model_dir = str(Path(realESRGAN_text.readline()))
 
-general_resources_dir = Path("D:\Projects\General Resources")
-RealESRGAN_model_dir = str(general_resources_dir / "RealESRGAN_x2plus.pth")
-GFPGAN_model_dir = str(general_resources_dir / "GFPGANv1.4.pth")
+with open("GFPGAN Directory.txt", "r") as GFPGAN_text:
+    GFPGAN_model_dir = str(Path(GFPGAN_text.readline()))
 
 model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=2)
 bg_upsampler = RealESRGANer(
     scale=2,
-    # model_path='https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.1/RealESRGAN_x2plus.pth',
     model_path=RealESRGAN_model_dir,
     model=model,
     tile=400,
@@ -49,8 +47,6 @@ bg_upsampler = RealESRGANer(
     pre_pad=0,
     half=True)  # need to set False in CPU mode
 
-model_path = os.path.join('../gfpgan/weights', "GFPGANv1.4" + '.pth')
-# model_path = os.path.join('gfpgan/weights', "GFPGANv1.3" + '.pth')
 arch = 'clean'
 channel_multiplier = 2
 
@@ -84,35 +80,34 @@ print(f"Importing Buffalo")
 buffalo = FaceAnalysis(name="buffalo_l", providers=["CUDAExecutionProvider"])
 buffalo.prepare(ctx_id=0, det_size=(640, 640))
 
+with open("Inswapper Directory.txt", "r") as inswapper_text:
+    inswapper_path = Path(inswapper_text.readline())
+
 print(f"Importing inswapper")
-inswapper_folder = Path("D:\Projects\General Resources")
-inswapper_path = inswapper_folder / "inswapper_128.onnx"
 inswapper = insightface.model_zoo.get_model(str(inswapper_path), download=False, download_zip=False,
                                             providers=["CUDAExecutionProvider"])
-
-
 
 # Changes the working directory to the workspace
 os.chdir(workspace_dir)
 
-swap_dir = video_dir / "Swap"
+swap_dir = video_folder_dir / "Swap"
 if not swap_dir.exists():
     os.mkdir(swap_dir)
 
-deep_video_input_dir = swap_dir / "Swap Video Input"
-if not deep_video_input_dir.exists():
-    os.mkdir(deep_video_input_dir)
+swap_video_input_dir = swap_dir / "Swap Video Input"
+if not swap_video_input_dir.exists():
+    os.mkdir(swap_video_input_dir)
 
-deep_video_out_dir = swap_dir / "Swap Video Upscale"
-if not deep_video_out_dir.exists():
-    os.mkdir(deep_video_out_dir)
+swap_video_out_dir = swap_dir / "Swap Video Upscale"
+if not swap_video_out_dir.exists():
+    os.mkdir(swap_video_out_dir)
 
 transplant_faces_dir = swap_dir / "Face"
 if not transplant_faces_dir.exists():
     os.mkdir(transplant_faces_dir)
 
 checked_pack = []
-check_JSON_dir = resources_dir / "Check.json"
+check_JSON_dir = video_folder_dir / "Check Upscale.json"
 
 if check_JSON_dir.exists():
     if os.stat(check_JSON_dir).st_size > 0:
@@ -127,11 +122,9 @@ for entry in transplant_faces_dir.rglob('*'):
 
 video_file_list = []
 
-for entry in deep_video_input_dir.rglob('*'):
+for entry in swap_video_input_dir.rglob('*'):
     if entry.is_file():
         video_file_list.append(entry)
-
-print(video_file_list)
 
 global_now = datetime.now()
 global_start_time = global_now
@@ -145,13 +138,12 @@ for face in transplant_faces_list:
     transplant_faces = buffalo.get(face_image)
     transplant_face = transplant_faces[0]
 
-    # for video_file in deep_video_input_dir.iterdir():
     for video_file in video_file_list:
 
         print(f"Working with: {face.parent.name} {face.stem} | {video_file.parent.name} {video_file.name}")
         combination = (face, video_file)
 
-        if not str(combination) in checked_pack:
+        if not str(combination).upper() in checked_pack:
 
             video_path = video_file
 
@@ -170,10 +162,9 @@ for face in transplant_faces_list:
             current_time = now.strftime("%H:%M:%S")
             print(f"Combination Start Time: {current_time}\n")
 
-
             for frame in frames:
                 count += 1
-                sys.stdout.write(f"\rFrame {count} | Estimated {frame_estimate} Frames")
+                print(f"\rFrame {count} | Estimated {frame_estimate} Frames")
                 append_frame = frame
 
                 try:
@@ -187,7 +178,6 @@ for face in transplant_faces_list:
                     for base_face in base_faces:
                         base_copy = inswapper.get(base_copy, base_face, transplant_faces[0], paste_back=True)
 
-
                     base_copy = cv2.cvtColor(base_copy, cv2.COLOR_RGB2BGR)
 
                     cropped_faces, restored_faces, restored_frame = restorer.enhance(
@@ -197,12 +187,7 @@ for face in transplant_faces_list:
 
                     append_frame = cv2.cvtColor(restored_frame, cv2.COLOR_BGR2RGB)
 
-
                 new_frame_list.append(append_frame)
-
-            # total_image_data_size = sum(sys.getsizeof(frame.tobytes()) for frame in new_frame_list)
-            # print(f"\nApproximate sum of images: {print_size(total_image_data_size)} ")
-            # print(f"Size of list: {print_size(sys.getsizeof(new_frame_list))}")
 
             time.sleep(1)
 
@@ -212,19 +197,14 @@ for face in transplant_faces_list:
             video.reader.close()
             gc.collect()
 
-            # if video_file.parent.name == "Deep Video Input":
-            # video_name_segment = f"{video_file.stem}"
-            # else:
-            # video_name_segment = f"{video_file.parent.name}_{video_file.stem}"
-
             video_name_segment = f"{video_file.stem[-8:]}"
 
             if face.parent.stem == "Face":
                 face_name_segment = f"{face.stem}"
-                output_face_folder = deep_video_out_dir
+                output_face_folder = swap_video_out_dir
             else:
                 face_name_segment = f"{face.parent.stem}_{face.stem}"
-                output_face_folder = deep_video_out_dir / f"{face.parent.name}"
+                output_face_folder = swap_video_out_dir / f"{face.parent.name}"
                 if not output_face_folder.exists():
                     os.mkdir(output_face_folder)
 
@@ -244,7 +224,7 @@ for face in transplant_faces_list:
             new_video.close()
             gc.collect()
 
-            checked_pack.append(str(combination))
+            checked_pack.append(str(combination).upper())
 
             json_file = open(check_JSON_dir, "w")
             json.dump(checked_pack, json_file)

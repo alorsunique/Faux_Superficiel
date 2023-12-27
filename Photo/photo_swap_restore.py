@@ -102,9 +102,13 @@ global_start_time = global_now
 global_current_time = global_now.strftime("%H:%M:%S")
 print(f"Session Start Time: {global_current_time}\n")
 
+count = 0
+max_count = len(to_upscale_list)
+
 for entry in to_upscale_list:
+    count += 1
     file_dir = output_transplant_dir / entry
-    print(f"Working: {file_dir.name}")
+    print(f"{count}/{max_count} | Working: {file_dir.name}")
 
     input_img = cv2.imread(str(file_dir), cv2.IMREAD_COLOR)
     cropped_faces, restored_faces, restored_img = restorer.enhance(

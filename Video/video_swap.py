@@ -31,25 +31,29 @@ def print_size(size):
     return print_size_string
 
 
+os.chdir(Path.cwd().parent)
+
 print(f"Importing Buffalo")
 buffalo = FaceAnalysis(name="buffalo_l", providers=["CUDAExecutionProvider"])
 buffalo.prepare(ctx_id=0, det_size=(640, 640))
 
+with open("Inswapper Directory.txt", "r") as inswapper_text:
+    inswapper_path = Path(inswapper_text.readline())
+
 print(f"Importing inswapper")
-inswapper_folder = Path("D:\Projects\General Resources")
-inswapper_path = inswapper_folder / "inswapper_128.onnx"
+
 inswapper = insightface.model_zoo.get_model(str(inswapper_path), download=False, download_zip=False,
                                             providers=["CUDAExecutionProvider"])
 
-project_dir = Path.cwd().parent
-upper_dir = project_dir.parent.parent
-resources_dir = upper_dir / "PycharmProjects Resources" / "Faux_Superficiel Resources"
-video_dir = resources_dir / "Video"
+with open("Resources Directory.txt", "r") as resources_text:
+    resources_dir = Path(resources_text.readline())
 
-if not video_dir.exists():
-    os.mkdir(video_dir)
+video_folder_dir = resources_dir / "Video"
 
-workspace_dir = video_dir / "Temporary Workspace"
+if not video_folder_dir.exists():
+    os.mkdir(video_folder_dir)
+
+workspace_dir = video_folder_dir / "Temporary Workspace"
 
 if not workspace_dir.exists():
     os.mkdir(workspace_dir)
@@ -57,24 +61,24 @@ if not workspace_dir.exists():
 # Changes the working directory to the workspace
 os.chdir(workspace_dir)
 
-swap = video_dir / "Swap"
+swap = video_folder_dir / "Swap"
 if not swap.exists():
     os.mkdir(swap)
 
-deep_video_input_dir = swap / "Swap Video Input"
-if not deep_video_input_dir.exists():
-    os.mkdir(deep_video_input_dir)
+swap_video_input_dir = swap / "Swap Video Input"
+if not swap_video_input_dir.exists():
+    os.mkdir(swap_video_input_dir)
 
-deep_video_out_dir = swap / "Swap Video Outout"
-if not deep_video_out_dir.exists():
-    os.mkdir(deep_video_out_dir)
+swap_video_out_dir = swap / "Swap Video Output"
+if not swap_video_out_dir.exists():
+    os.mkdir(swap_video_out_dir)
 
 transplant_faces_dir = swap / "Face"
 if not transplant_faces_dir.exists():
     os.mkdir(transplant_faces_dir)
 
 checked_pack = []
-check_JSON_dir = resources_dir / "Check.json"
+check_JSON_dir = video_folder_dir / "Check.json"
 
 if check_JSON_dir.exists():
     if os.stat(check_JSON_dir).st_size > 0:
@@ -89,11 +93,9 @@ for entry in transplant_faces_dir.rglob('*'):
 
 video_file_list = []
 
-for entry in deep_video_input_dir.rglob('*'):
+for entry in swap_video_input_dir.rglob('*'):
     if entry.is_file():
         video_file_list.append(entry)
-
-print(video_file_list)
 
 global_now = datetime.now()
 global_start_time = global_now
@@ -107,13 +109,12 @@ for face in transplant_faces_list:
     transplant_faces = buffalo.get(face_image)
     transplant_face = transplant_faces[0]
 
-    # for video_file in deep_video_input_dir.iterdir():
     for video_file in video_file_list:
 
         print(f"Working with: {face.parent.name} {face.stem} | {video_file.parent.name} {video_file.name}")
         combination = (face, video_file)
 
-        if not str(combination) in checked_pack:
+        if not str(combination).upper() in checked_pack:
 
             video_path = video_file
 
@@ -150,10 +151,6 @@ for face in transplant_faces_list:
                     append_frame = base_copy
                 new_frame_list.append(append_frame)
 
-            # total_image_data_size = sum(sys.getsizeof(frame.tobytes()) for frame in new_frame_list)
-            # print(f"\nApproximate sum of images: {print_size(total_image_data_size)} ")
-            # print(f"Size of list: {print_size(sys.getsizeof(new_frame_list))}")
-
             time.sleep(1)
 
             new_video = ImageSequenceClip(new_frame_list, fps=fps)
@@ -162,19 +159,14 @@ for face in transplant_faces_list:
             video.reader.close()
             gc.collect()
 
-            # if video_file.parent.name == "Deep Video Input":
-            # video_name_segment = f"{video_file.stem}"
-            # else:
-            # video_name_segment = f"{video_file.parent.name}_{video_file.stem}"
-
             video_name_segment = f"{video_file.stem[-8:]}"
 
             if face.parent.stem == "Face":
                 face_name_segment = f"{face.stem}"
-                output_face_folder = deep_video_out_dir
+                output_face_folder = swap_video_out_dir
             else:
                 face_name_segment = f"{face.parent.stem}_{face.stem}"
-                output_face_folder = deep_video_out_dir / f"{face.parent.name}"
+                output_face_folder = swap_video_out_dir / f"{face.parent.name}"
                 if not output_face_folder.exists():
                     os.mkdir(output_face_folder)
 
@@ -194,7 +186,7 @@ for face in transplant_faces_list:
             new_video.close()
             gc.collect()
 
-            checked_pack.append(str(combination))
+            checked_pack.append(str(combination).upper())
 
             json_file = open(check_JSON_dir, "w")
             json.dump(checked_pack, json_file)

@@ -3,15 +3,17 @@ from pathlib import Path
 
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 
-project_dir = Path.cwd().parent
-upper_dir = project_dir.parent.parent
-resources_dir = upper_dir / "PycharmProjects Resources" / "Faux_Superficiel Resources"
-video_dir = resources_dir / "Video"
+os.chdir(Path.cwd().parent)
 
-if not video_dir.exists():
-    os.mkdir(video_dir)
+with open("Resources Directory.txt", "r") as resources_text:
+    resources_dir = Path(resources_text.readline())
 
-workspace_dir = resources_dir / "Temporary Workspace"
+video_folder_dir = resources_dir / "Video"
+
+if not video_folder_dir.exists():
+    os.mkdir(video_folder_dir)
+
+workspace_dir = video_folder_dir / "Temporary Workspace"
 
 if not resources_dir.exists():
     os.mkdir(resources_dir)
@@ -21,19 +23,19 @@ if not workspace_dir.exists():
 
 os.chdir(workspace_dir)
 
-swap_dir = video_dir / "Swap"
+swap_dir = video_folder_dir / "Swap"
 if not swap_dir.exists():
     os.mkdir(swap_dir)
 
-deep_video_out_dir = swap_dir / "Swap Video Output"
-if not deep_video_out_dir.exists():
-    os.mkdir(deep_video_out_dir)
+swap_video_out_dir = swap_dir / "Swap Video Output"
+if not swap_video_out_dir.exists():
+    os.mkdir(swap_video_out_dir)
 
-deep_reconstruct_dir = swap_dir / "Swap Reconstruct"
-if not deep_reconstruct_dir.exists():
-    os.mkdir(deep_reconstruct_dir)
+swap_reconstruct_dir = swap_dir / "Swap Reconstruct"
+if not swap_reconstruct_dir.exists():
+    os.mkdir(swap_reconstruct_dir)
 
-for face in deep_video_out_dir.iterdir():
+for face in swap_video_out_dir.iterdir():
     for clip_folder in face.iterdir():
 
         unique_transplant_list = []
@@ -60,7 +62,7 @@ for face in deep_video_out_dir.iterdir():
 
             final_video = concatenate_videoclips(video_clip_added)
 
-            output_folder = deep_reconstruct_dir / face.name
+            output_folder = swap_reconstruct_dir / face.name
             if not output_folder.exists():
                 os.mkdir(output_folder)
 

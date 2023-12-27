@@ -77,19 +77,19 @@ for base_file in base_file_list:
 
         combination_output_name = f"{base_output_name}_{transplant_output_name}"
 
-        base_condition = False
+        # base_condition = False
         transplant_condition = False
 
         # The checking is done here
 
-        if base_search_dir.exists():
-            for output_file in base_search_dir.iterdir():
+        # if base_search_dir.exists():
+        # for output_file in base_search_dir.iterdir():
 
-                output_file_name = str(output_file.stem)
+        # output_file_name = str(output_file.stem)
 
-                if combination_output_name in output_file_name:
-                    combined_processed_list_dict[output_file] = 1
-                    base_condition = True
+        # if combination_output_name in output_file_name:
+        # combined_processed_list_dict[output_file] = 1
+        # base_condition = True
 
         if transplant_search_dir.exists():
             for output_file in transplant_search_dir.iterdir():
@@ -99,7 +99,8 @@ for base_file in base_file_list:
                     combined_processed_list_dict[output_file] = 1
                     transplant_condition = True
 
-        if base_condition and transplant_condition:
+        # if base_condition and transplant_condition:
+        if transplant_condition:
             checked_pack.append(str((base_file, transplant_file)).upper())
 
 # A JSON file containing all the combinations will be written
