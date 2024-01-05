@@ -6,6 +6,21 @@ resources_dir_text = "Resources_Path.txt"
 with open(resources_dir_text, 'a') as writer:
     writer.close()
 
+model_dir_text = "Inswapper_Model_Path.txt"
+
+with open(model_dir_text, 'a') as writer:
+    writer.close()
+
+model_dir_text = "GFPGAN_Model_Path.txt"
+
+with open(model_dir_text, 'a') as writer:
+    writer.close()
+
+model_dir_text = "RealESRGAN_Model_Path.txt"
+
+with open(model_dir_text, 'a') as writer:
+    writer.close()
+
 entry_list = []
 
 with open(resources_dir_text, 'r') as reader:
@@ -19,10 +34,14 @@ if entry_list[0]:
     if not resources_dir.exists():
         os.mkdir(resources_dir)
 
-    input_dir = resources_dir / "Input"
-    if not input_dir.exists():
-        os.mkdir(input_dir)
+    photo_dir = resources_dir / "Photo"
 
-    output_dir = resources_dir / "Output"
-    if not output_dir.exists():
-        os.mkdir(output_dir)
+    if not photo_dir.exists():
+        os.mkdir(photo_dir)
+
+    video_dir = resources_dir / "Video"
+
+    if not video_dir.exists():
+        os.mkdir(video_dir)
+else:
+    print(f"Empty resource text file")
