@@ -1,3 +1,5 @@
+# Uses GFPGAN to restore the faces
+
 import os
 import shutil
 from datetime import datetime
@@ -5,19 +7,23 @@ from pathlib import Path
 
 import cv2
 from basicsr.archs.rrdbnet_arch import RRDBNet
+from gfpgan import GFPGANer
 from realesrgan import RealESRGANer
 
-from gfpgan import GFPGANer
+project_dir = Path.cwd().parent
+os.chdir(project_dir)
 
-os.chdir(Path.cwd().parent)
-
-with open("Resources Directory.txt", "r") as resources_text:
+with open("Resources_Path.txt", "r") as resources_text:
     resources_dir = Path(resources_text.readline())
 
 photo_folder_dir = resources_dir / "Photo"
 output_dir = photo_folder_dir / "Output"
 output_transplant_dir = output_dir / "Transplant Output"
-upscale_dir = photo_folder_dir / "Upscale"
+
+restore_dir = photo_folder_dir / "Restore"
+
+if not restore_dir.exists():
+    os.mkdir(restore_dir)
 
 # Takes note of all the images in the output transplant folder
 
@@ -31,32 +37,32 @@ for entry in output_transplant_dir.rglob('*'):
 
 # Takes note of all the images in the upscale folder
 
-upscale_list = []
-for entry in upscale_dir.rglob('*'):
+restore_list = []
+for entry in restore_dir.rglob('*'):
     if entry.is_file():
-        if entry.parent.name == "Upscale":
-            upscale_list.append(f"{entry.name}")
+        if entry.parent.name == "Restore":
+            restore_list.append(f"{entry.name}")
         else:
-            upscale_list.append(f"{entry.parent.name}/{entry.name}")
+            restore_list.append(f"{entry.parent.name}/{entry.name}")
 
 # Set comparison is done here
 
 output_set = set(output_list)
-upscale_set = set(upscale_list)
-extra_set = upscale_set.difference(output_set)
-to_upscale_set = output_set.difference(upscale_set)
-to_upscale_list = sorted(list(to_upscale_set))
+restore_set = set(restore_list)
+extra_set = restore_set.difference(output_set)
+to_restore_set = output_set.difference(restore_set)
+to_restore_list = (list(to_restore_set))
 
 # Deletes all extra photos in the upscale folder
 # Extra photos are images with no corresponding image in the output transplant folder
 
 for entry in extra_set:
-    file_dir = upscale_dir / entry
+    file_dir = restore_dir / entry
     os.remove(file_dir)
 
 folder_list = []
 
-for entry in upscale_dir.rglob('*'):
+for entry in restore_dir.rglob('*'):
     if entry.is_dir():
         folder_list.append(entry)
 
@@ -103,9 +109,9 @@ global_current_time = global_now.strftime("%H:%M:%S")
 print(f"Session Start Time: {global_current_time}\n")
 
 count = 0
-max_count = len(to_upscale_list)
+max_count = len(to_restore_list)
 
-for entry in to_upscale_list:
+for entry in to_restore_list:
     count += 1
     file_dir = output_transplant_dir / entry
     print(f"{count}/{max_count} | Working: {file_dir.name}")
@@ -117,11 +123,11 @@ for entry in to_upscale_list:
         weight=0.5)
 
     if file_dir.parent.name != "Transplant":
-        output_folder = upscale_dir / file_dir.parent.name
+        output_folder = restore_dir / file_dir.parent.name
         if not output_folder.exists():
             os.mkdir(output_folder)
     else:
-        output_folder = upscale_dir
+        output_folder = restore_dir
 
     output_name = output_folder / f"{file_dir.name}"
     cv2.imwrite(str(output_name), restored_img)

@@ -1,3 +1,5 @@
+# Perform the swapping of faces using Insightface
+
 import itertools
 import json
 import os
@@ -8,7 +10,8 @@ from insightface.app import FaceAnalysis
 
 from Photo import swapping_pack as sp
 
-os.chdir(Path.cwd().parent)
+project_dir = Path.cwd().parent
+os.chdir(project_dir)
 
 # Buffalo and Inswapper are imported here
 
@@ -16,10 +19,8 @@ os.chdir(Path.cwd().parent)
 buffalo = FaceAnalysis(name="buffalo_l", providers=["CUDAExecutionProvider"])
 buffalo.prepare(ctx_id=0, det_size=(640, 640))
 
-with open("Inswapper Directory.txt", "r") as inswapper_text:
+with open("Inswapper_Model_Path.txt", "r") as inswapper_text:
     inswapper_path = Path(inswapper_text.readline())
-
-print(f"Importing inswapper")
 
 # inswapper = insightface.model_zoo.get_model(str(inswapper_path), download=False, download_zip = False, providers=["CPUExecutionProvider"]) # For CPU use only
 inswapper = insightface.model_zoo.get_model(str(
@@ -28,15 +29,10 @@ inswapper = insightface.model_zoo.get_model(str(
 # Setting up the directories
 
 
-with open("Resources Directory.txt", "r") as resources_text:
+with open("Resources_Path.txt", "r") as resources_text:
     resources_dir = Path(resources_text.readline())
 
-if not resources_dir.exists():
-    os.mkdir(resources_dir)
-
 photo_folder_dir = resources_dir / "Photo"
-if not photo_folder_dir.exists():
-    os.mkdir(photo_folder_dir)
 
 base_dir = photo_folder_dir / "Base"
 if not base_dir.exists():
@@ -49,10 +45,6 @@ if not transplant_dir.exists():
 output_dir = photo_folder_dir / "Output"
 if not output_dir.exists():
     os.mkdir(output_dir)
-
-base_output_dir = output_dir / "Base Output"
-if not base_output_dir.exists():
-    os.mkdir(base_output_dir)
 
 transplant_output_dir = output_dir / "Transplant Output"
 if not transplant_output_dir.exists():
@@ -121,9 +113,9 @@ else:
 
 if not base_as_tranplant_condition:
     print(f"Performing Normal Swap")
-    sp.normal_swap(working_list, buffalo, base_output_dir, transplant_output_dir, inswapper, combination_length,
-                   checked_pack, check_JSON_dir)
+    sp.normal_swap_all_face(working_list, buffalo, transplant_output_dir, inswapper, combination_length,
+                            checked_pack, check_JSON_dir)
 else:
     print(f"Performing Invert Swap")
-    sp.invert_swap(working_list, buffalo, base_output_dir, transplant_output_dir, inswapper, combination_length,
-                   checked_pack, check_JSON_dir)
+    sp.invert_swap_all_face(working_list, buffalo, transplant_output_dir, inswapper, combination_length,
+                            checked_pack, check_JSON_dir)
