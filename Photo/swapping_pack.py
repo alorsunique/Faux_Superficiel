@@ -7,8 +7,8 @@ import sys
 import cv2
 
 
-def normal_swap(working_list, buffalo, base_output_dir, transplant_output_dir, inswapper, combination_length,
-                checked_pack, check_JSON_dir, save_base=False):
+def normal_swap(working_list, buffalo, transplant_output_dir, inswapper, combination_length,
+                checked_pack, check_JSON_dir):
     # Loads up the list of combinations to be done
 
     combination_list = working_list
@@ -71,16 +71,7 @@ def normal_swap(working_list, buffalo, base_output_dir, transplant_output_dir, i
 
                 if len(transplant_faces) > 0 and transplant_pass_condition:
 
-                    '''
-                    if base_image_path.parent.name != "Base":
-                        base_output_folder_name = base_output_dir / base_image_path.parent.name
-                        if not base_output_folder_name.exists():
-                            os.mkdir(base_output_folder_name)
-                    else:
-                        base_output_folder_name = base_output_dir
-                    '''
-
-                    # Create the translant folder in the output
+                    # Create the transplant folder in the output
 
                     if transplant_image_path.parent.name != "Transplant":
                         transplant_output_folder_name = transplant_output_dir / \
@@ -128,9 +119,10 @@ def normal_swap(working_list, buffalo, base_output_dir, transplant_output_dir, i
     json.dump(checked_pack, json_file)
     json_file.close()
 
+
 # For invert swap, structure is similar to normal swap
-def invert_swap(working_list, buffalo, base_output_dir, transplant_output_dir, inswapper, combination_length,
-                checked_pack, check_JSON_dir, save_base=False):
+def invert_swap(working_list, buffalo, transplant_output_dir, inswapper, combination_length,
+                checked_pack, check_JSON_dir):
     combination_list = working_list
     combination_count = 0
 
@@ -178,16 +170,6 @@ def invert_swap(working_list, buffalo, base_output_dir, transplant_output_dir, i
                     else:
                         base_output_folder_name = transplant_output_dir
 
-                    '''
-                    if transplant_image_path.parent.name != "Base":
-                        transplant_output_folder_name = base_output_dir / \
-                                                        transplant_image_path.parent.name
-                        if not transplant_output_folder_name.exists():
-                            os.mkdir(transplant_output_folder_name)
-                    else:
-                        transplant_output_folder_name = base_output_dir
-                    '''
-
                     sys.stdout.write(
                         f"\r{combination_count}/{combination_length} | {base_image_path.parent.name}: {base_image_path.name} | {transplant_image_path.parent.name}: {transplant_image_path.name}")
 
@@ -218,8 +200,8 @@ def invert_swap(working_list, buffalo, base_output_dir, transplant_output_dir, i
     json_file.close()
 
 
-def normal_swap_all_face(working_list, buffalo, base_output_dir, transplant_output_dir, inswapper, combination_length,
-                         checked_pack, check_JSON_dir, save_base=False):
+def normal_swap_all_face(working_list, buffalo, transplant_output_dir, inswapper, combination_length,
+                         checked_pack, check_JSON_dir):
     # Import the combinations
     combination_list = working_list
     combination_count = 0
@@ -265,15 +247,6 @@ def normal_swap_all_face(working_list, buffalo, base_output_dir, transplant_outp
 
                 if len(transplant_faces) > 0 and transplant_pass_condition:
 
-                    '''
-                    if base_image_path.parent.name != "Base":
-                        base_output_folder_name = base_output_dir / base_image_path.parent.name
-                        if not base_output_folder_name.exists():
-                            os.mkdir(base_output_folder_name)
-                    else:
-                        base_output_folder_name = base_output_dir
-                    '''
-
                     if transplant_image_path.parent.name != "Transplant":
                         transplant_output_folder_name = transplant_output_dir / \
                                                         transplant_image_path.parent.name
@@ -296,21 +269,9 @@ def normal_swap_all_face(working_list, buffalo, base_output_dir, transplant_outp
                             base_copy = inswapper.get(
                                 base_copy, base_face, transplant_face, paste_back=True)
 
-                        '''
-                        for base_face in base_faces:
-                            base_count += 1
-                            transplant_count = 0
-    
-                            # Swapping is done here
-                            for transplant_face in transplant_faces:
-                                transplant_count += 1
-                                base_copy = inswapper.get(
-                                    base_copy, base_face, transplant_face, paste_back=True)
-                        '''
-
                         base_name = f"{base_image_path.parent.name}_{base_image_path.stem}"
                         transplant_name = f"{transplant_image_path.parent.name}_{transplant_image_path.stem}"
-                        number_name = f"bALLt{transplant_count}.jpg"
+                        number_name = f"t{transplant_count}.jpg"
                         output_name = f"{base_name}_{transplant_name}_{number_name}"
 
                         append_string = str((base_image_path, transplant_image_path))
@@ -324,8 +285,8 @@ def normal_swap_all_face(working_list, buffalo, base_output_dir, transplant_outp
     json_file.close()
 
 
-def invert_swap_all_face(working_list, buffalo, base_output_dir, transplant_output_dir, inswapper, combination_length,
-                         checked_pack, check_JSON_dir, save_base=False):
+def invert_swap_all_face(working_list, buffalo, transplant_output_dir, inswapper, combination_length,
+                         checked_pack, check_JSON_dir):
     combination_list = working_list
     combination_count = 0
 
@@ -373,16 +334,6 @@ def invert_swap_all_face(working_list, buffalo, base_output_dir, transplant_outp
                     else:
                         base_output_folder_name = transplant_output_dir
 
-                    '''
-                    if transplant_image_path.parent.name != "Base":
-                        transplant_output_folder_name = base_output_dir / \
-                                                        transplant_image_path.parent.name
-                        if not transplant_output_folder_name.exists():
-                            os.mkdir(transplant_output_folder_name)
-                    else:
-                        transplant_output_folder_name = base_output_dir
-                    '''
-
                     sys.stdout.write(
                         f"\r{combination_count}/{combination_length} | {base_image_path.parent.name}: {base_image_path.name} | {transplant_image_path.parent.name}: {transplant_image_path.name}")
 
@@ -393,23 +344,11 @@ def invert_swap_all_face(working_list, buffalo, base_output_dir, transplant_outp
 
                         for transplant_face in transplant_faces:
                             base_copy = inswapper.get(
-                                base_copy, transplant_face,base_face, paste_back=True)
-
-                        '''
-                        base_count = 0
-                        base_copy = transplant_image.copy()
-                        for base_face in base_faces:
-                            base_count += 1
-                            transplant_count = 0
-                            for transplant_face in transplant_faces:
-                                transplant_count += 1
-                                base_copy = inswapper.get(
-                                    base_copy, transplant_face, base_face, paste_back=True)
-                        '''
+                                base_copy, transplant_face, base_face, paste_back=True)
 
                         transplant_name = f"{base_image_path.parent.name}_{base_image_path.stem}"
                         base_name = f"{transplant_image_path.parent.name}_{transplant_image_path.stem}"
-                        number_name = f"bALLt{base_count}.jpg"
+                        number_name = f"t{base_count}.jpg"
                         output_name = f"{base_name}_{transplant_name}_{number_name}"
 
                         append_string = str(
