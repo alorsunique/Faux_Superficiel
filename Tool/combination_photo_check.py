@@ -1,11 +1,16 @@
+# This scripts checks for the possible combinations given the base and transplant images
+# If a combination of base and transplant images already exists, it will be added to a JSON file
+# If an output image has no correspondence in either base or transplant, it will be deleted
+
 import json
 import os
 import shutil
 from pathlib import Path
 
-os.chdir(Path.cwd().parent)
+project_dir = Path.cwd().parent
+os.chdir(project_dir)
 
-with open("Resources Directory.txt", "r") as resources_text:
+with open("Resources_Path.txt", "r") as resources_text:
     resources_dir = Path(resources_text.readline())
 
 # Setting up the directories
@@ -16,7 +21,6 @@ base_dir = photo_folder_dir / "Base"
 transplant_dir = photo_folder_dir / "Transplant"
 
 output_dir = photo_folder_dir / "Output"
-output_base_dir = output_dir / "Base Output"
 output_transplant_dir = output_dir / "Transplant Output"
 
 # Taking note of all the base images
@@ -56,10 +60,8 @@ for base_file in base_file_list:
         base_parent_name = base_entry.parent.name
         base_name = base_entry.stem
         base_output_name = f"{base_parent_name}_{base_name}"
-        base_search_dir = output_base_dir / base_entry.parent.name
     else:
-        base_output_name = base_entry.stem
-        base_search_dir = output_base_dir
+        base_output_name = f"Base_{base_entry.stem}"
 
     for transplant_file in transplant_file_list:
 
@@ -72,24 +74,12 @@ for base_file in base_file_list:
             transplant_output_name = f"{transplant_parent_name}_{transplant_name}"
             transplant_search_dir = output_transplant_dir / transplant_entry.parent.name
         else:
-            transplant_output_name = transplant_entry.stem
+            transplant_output_name = f"Transplant_{transplant_entry.stem}"
             transplant_search_dir = output_transplant_dir
 
         combination_output_name = f"{base_output_name}_{transplant_output_name}"
 
-        # base_condition = False
         transplant_condition = False
-
-        # The checking is done here
-
-        # if base_search_dir.exists():
-        # for output_file in base_search_dir.iterdir():
-
-        # output_file_name = str(output_file.stem)
-
-        # if combination_output_name in output_file_name:
-        # combined_processed_list_dict[output_file] = 1
-        # base_condition = True
 
         if transplant_search_dir.exists():
             for output_file in transplant_search_dir.iterdir():
