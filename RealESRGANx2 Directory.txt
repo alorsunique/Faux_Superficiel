@@ -1,1 +1,0 @@
-D:\Projects\General Resources\RealESRGAN_x2plus.pth
