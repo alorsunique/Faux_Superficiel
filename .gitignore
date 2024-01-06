@@ -24,3 +24,7 @@
 /gfpgan/train.py
 /gfpgan/utils.py
 /gfpgan/version.py
+/Resources_Path.txt
+/RealESRGAN_Model_Path.txt
+/Inswapper_Model_Path.txt
+/GFPGAN_Model_Path.txt
